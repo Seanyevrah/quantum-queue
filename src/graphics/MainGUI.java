@@ -1,6 +1,9 @@
 package graphics;
 
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
@@ -74,21 +77,21 @@ public class MainGUI {
         mainPanel.repaint();
     }
 
-    private void applyThemeRecursive(java.awt.Container parent) {
-        for (java.awt.Component c : parent.getComponents()) {
-            java.awt.Color bg = c.getBackground();
+    private void applyThemeRecursive(Container parent) {
+        for (Component c : parent.getComponents()) {
+            Color bg = c.getBackground();
             if (bg != null) {
                 if (bg.equals(branding.dark) || bg.equals(branding.light)) {
                     c.setBackground(branding.dark);
                 }
             }
             
-            java.awt.Color fg = c.getForeground();
+            Color fg = c.getForeground();
             if (fg != null && (fg.equals(branding.dark) || fg.equals(branding.light))) {
                 c.setForeground(branding.light);
             }
-            if (c instanceof java.awt.Container) {
-                applyThemeRecursive((java.awt.Container) c);
+            if (c instanceof Container) {
+                applyThemeRecursive((Container) c);
             }
         }
     }

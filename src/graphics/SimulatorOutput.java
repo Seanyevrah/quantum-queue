@@ -16,29 +16,21 @@ public class SimulatorOutput extends JPanel {
 
     private JPanel mainPanel;
     private JPanel topPanel, bottomPanel;
-
-    // Top panel components
+    
     private JLabel timerLabel;
     private JLabel algorithmNameLabel;
     private JPanel ganttChartPanel;
 
     private JScrollPane ganttScrollPane;
     private JScrollPane tableScrollPane;
-
-    // Animation
-    private javax.swing.Timer simulationTimer;
+    
+    private Timer simulationTimer;
     private int currentTime = 0;
     private int totalTime = 0;
-    private JPanel liveGanttChart; // reference so the timer can repaint it
-
-    // Bottom panel components
+    private JPanel liveGanttChart;
+    
     private JButton goBackButton;
-    private JPanel tableHeaderPanel; // fixed header row, outside the scroll pane
-
-    // Colors matching the dark theme — kept for Gantt chart backward-compat
-    private Color P1_COLOR = new Color(72, 187, 120);
-    private Color P2_COLOR = new Color(176, 80, 100);
-    private Color P3_COLOR = new Color(110, 90, 190);
+    private JPanel tableHeaderPanel;
 
     public SimulatorOutput(MainEngine mainEngine, Branding branding, JPanel parentContainer) {
         this.branding = branding;
@@ -53,21 +45,21 @@ public class SimulatorOutput extends JPanel {
     }
 
     public void initializeMainPanel() {
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setBackground(branding.dark);
+        JPanel margin = new JPanel(new BorderLayout());
+        margin.setBackground(branding.dark);
 
-        int mw = 20, mh = 20;
+        int marginWidth = 20, marginHeight = 20;
 
-        wrapper.add(blankPanel(branding.dark, 0, mh), BorderLayout.NORTH);
-        wrapper.add(blankPanel(branding.dark, 0, mh), BorderLayout.SOUTH);
-        wrapper.add(blankPanel(branding.dark, mw, 0), BorderLayout.WEST);
-        wrapper.add(blankPanel(branding.dark, mw, 0), BorderLayout.EAST);
+        margin.add(blankPanel(branding.dark, 0, marginHeight), BorderLayout.NORTH);
+        margin.add(blankPanel(branding.dark, 0, marginHeight), BorderLayout.SOUTH);
+        margin.add(blankPanel(branding.dark, marginWidth, 0), BorderLayout.WEST);
+        margin.add(blankPanel(branding.dark, marginWidth, 0), BorderLayout.EAST);
 
         mainPanel = new JPanel(new BorderLayout(0, 20));
         mainPanel.setBackground(branding.dark);
-        wrapper.add(mainPanel, BorderLayout.CENTER);
+        margin.add(mainPanel, BorderLayout.CENTER);
 
-        add(wrapper, BorderLayout.CENTER);
+        add(margin, BorderLayout.CENTER);
     }
     
     public void initializePanels() {
@@ -95,29 +87,23 @@ public class SimulatorOutput extends JPanel {
         topPanel.setOpaque(false);
         topPanel.setPreferredSize(new Dimension(0, 200));
         topPanel.setBorder(new EmptyBorder(14, 18, 14, 18));
-
-        // --- Timer (top-left) ---
+        
         timerLabel = new JLabel("Timer: 0:06");
         timerLabel.setFont(branding.jetBrainsBMedium);
         timerLabel.setForeground(branding.light);
-
-        // --- Algorithm name (top-right) ---
+        
         algorithmNameLabel = new JLabel("");
         algorithmNameLabel.setFont(branding.jetBrainsBMedium);
         algorithmNameLabel.setForeground(branding.light);
         algorithmNameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-        // Header row: timer left, algorithm right
+        
         JPanel headerRow = new JPanel(new BorderLayout());
         headerRow.setOpaque(false);
         headerRow.add(timerLabel, BorderLayout.WEST);
         headerRow.add(algorithmNameLabel, BorderLayout.EAST);
-
-        // --- Gantt Chart (centered) ---
+        
         JPanel chartContent = createGanttChart();
-        ganttScrollPane = new JScrollPane(chartContent,
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        ganttScrollPane = new JScrollPane(chartContent, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         ganttScrollPane.setBorder(null);
         ganttScrollPane.setOpaque(false);
         ganttScrollPane.getViewport().setOpaque(false);
@@ -135,13 +121,13 @@ public class SimulatorOutput extends JPanel {
         wrapper.setOpaque(false);
 
         JPanel chart = new JPanel() {
-            private final String[] labels  = { "P1", "P2", "P3" };
-            private final Color[] colors  = { P1_COLOR, P2_COLOR, P3_COLOR };
-            private final int[] ticks = { 0, 2, 4, 6 };
-            private final int BAR_H = 38;
-            private final int BAR_W = 100;
-            private final int TICK_Y = BAR_H + 6;
-            private final int PAD_LEFT = 10;
+            String[] labels  = { "P1", "P2", "P3" };
+            Color[] colors  = { branding.processColor[0], branding.processColor[1], branding.processColor[2] };
+            int[] ticks = { 0, 2, 4, 6 };
+            int blockHeight = 38;
+            int blockWidth = 100;
+            int timeStampLoc = blockHeight + 6;
+            int paddingLeft = 10;
 
             @Override
             protected void paintComponent(Graphics g) {
@@ -150,33 +136,30 @@ public class SimulatorOutput extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int totalBars = labels.length;
-                int totalW = totalBars * BAR_W;
-                int startX = Math.max((getWidth() - totalW) / 2, PAD_LEFT);
-
-                // Draw colored bars
+                int totalWidth = totalBars * blockWidth;
+                int startX = Math.max((getWidth() - totalWidth) / 2, paddingLeft);
+                
                 for (int i = 0; i < totalBars; i++) {
-                    int x = startX + i * BAR_W;
+                    int x = startX + i * blockWidth;
                     g2.setColor(colors[i]);
-                    g2.fillRect(x, 0, BAR_W, BAR_H);
-
-                    // Bar label
+                    g2.fillRect(x, 0, blockWidth, blockHeight);
+                    
                     g2.setColor(Color.WHITE);
                     g2.setFont(branding.jetBrainsBMedium);
                     FontMetrics fm = g2.getFontMetrics();
-                    int lx = x + (BAR_W - fm.stringWidth(labels[i])) / 2;
-                    int ly = (BAR_H + fm.getAscent() - fm.getDescent()) / 2;
+                    int lx = x + (blockWidth - fm.stringWidth(labels[i])) / 2;
+                    int ly = (blockHeight + fm.getAscent() - fm.getDescent()) / 2;
                     g2.drawString(labels[i], lx, ly);
                 }
-
-                // Draw tick marks and numbers below bars
+                
                 g2.setFont(branding.jetBrainsBSmall);
                 g2.setColor(branding.light);
                 FontMetrics fm = g2.getFontMetrics();
                 for (int i = 0; i <= totalBars; i++) {
-                    int x = startX + i * BAR_W;
+                    int x = startX + i * blockWidth;
                     String t = String.valueOf(ticks[i]);
                     int tx = x - fm.stringWidth(t) / 2;
-                    g2.drawString(t, tx, TICK_Y + fm.getAscent());
+                    g2.drawString(t, tx, timeStampLoc + fm.getAscent());
                 }
 
                 g2.dispose();
@@ -184,7 +167,7 @@ public class SimulatorOutput extends JPanel {
 
             @Override
             public Dimension getPreferredSize() {
-                return new Dimension(320 + PAD_LEFT * 2, 60);
+                return new Dimension(320 + paddingLeft * 2, 60);
             }
         };
         chart.setOpaque(false);
@@ -209,15 +192,13 @@ public class SimulatorOutput extends JPanel {
         };
         bottomPanel.setOpaque(false);
         bottomPanel.setBorder(new EmptyBorder(20, 24, 24, 24));
-
-        // --- Go Back button ---
+        
         goBackButton = createGoBackButton("Go Back");
 
         JPanel goBackRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         goBackRow.setOpaque(false);
         goBackRow.add(goBackButton);
-
-        // --- Process results table ---
+        
         JPanel tableContent = createProcessTable();
 
         bottomPanel.add(goBackRow, BorderLayout.NORTH);
@@ -225,7 +206,6 @@ public class SimulatorOutput extends JPanel {
     }
 
     public JPanel createProcessTable() {
-        // Outer wrapper holds header (fixed) + scrollable data rows
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
         wrapper.setBorder(new EmptyBorder(20, 0, 0, 0));
@@ -240,22 +220,19 @@ public class SimulatorOutput extends JPanel {
             "Average\nWaiting\nTime",
             "Average\nTurnaround\nTime"
         };
-
-        // Header row — saved as field so updateProcessTable can rebuild it
-        // without touching the scroll pane
+        
         tableHeaderPanel = new JPanel(new GridLayout(1, 8, 8, 0));
         tableHeaderPanel.setOpaque(false);
         for (String h : headers) {
             tableHeaderPanel.add(createMultiLineHeader(h));
         }
-
-        // Data rows — only these scroll
+        
         Object[][] data = {
             { "P1", "2", "0", "N/A", "0", "2", "0", "2" },
             { "P2", "2", "2", "N/A", "0", "2", "0", "2" },
             { "P3", "2", "4", "N/A", "0", "2", "0", "2" },
         };
-        Color[] placeholderColors = { P1_COLOR, P2_COLOR, P3_COLOR };
+        Color[] placeholderColors = { branding.processColor[0], branding.processColor[1], branding.processColor[2] };
 
         JPanel dataPanel = new JPanel();
         dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
@@ -265,11 +242,8 @@ public class SimulatorOutput extends JPanel {
             dataPanel.add(Box.createVerticalStrut(8));
             dataPanel.add(createDataRow(data[i], placeholderColors[i]));
         }
-
-        // tableScrollPane wraps ONLY the data rows — never the header
-        tableScrollPane = new JScrollPane(dataPanel,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        
+        tableScrollPane = new JScrollPane(dataPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         tableScrollPane.setBorder(null);
         tableScrollPane.setOpaque(false);
         tableScrollPane.getViewport().setOpaque(false);
@@ -289,8 +263,7 @@ public class SimulatorOutput extends JPanel {
             String text = values[i].toString();
             JLabel cell = new JLabel(text, SwingConstants.CENTER);
             cell.setFont(branding.jetBrainsBMedium);
-
-            // First column (Process ID): fill with the process's own color
+            
             if (i == 0 && idColor != null) {
                 cell.setOpaque(true);
                 cell.setBackground(idColor);
@@ -381,31 +354,29 @@ public class SimulatorOutput extends JPanel {
     public void loadSimulationResults() {
         ArrayList<Process> results = mainEngine.getFinalProcesses();
         ArrayList<GanttChartBlocks> blocks = mainEngine.getGanttChartBlocks();
-
-        // Calculate total simulation time from the last block's end time
+        
         totalTime = 0;
         if (blocks != null) {
             for (GanttChartBlocks b : blocks)
                 totalTime = Math.max(totalTime, b.getEndTime());
         }
-
-        // Reset animation state
+        
         currentTime = 0;
-        timerLabel.setText("Timer: 0");
+        timerLabel.setText("Timer: 0:00");
 
         updateGanttChart(blocks);
         updateProcessTable(results);
-
-        // Stop any previous timer
+        
         if (simulationTimer != null && simulationTimer.isRunning()) {
             simulationTimer.stop();
         }
-
-        // Tick every second — each tick reveals one more unit on the Gantt chart
-        simulationTimer = new javax.swing.Timer(1000, null);
+        
+        simulationTimer = new Timer(1000, null);
         simulationTimer.addActionListener(e -> {
             currentTime++;
-            timerLabel.setText("Timer: " + currentTime);
+            int minutes = currentTime / 60;
+            int seconds = currentTime % 60;
+            timerLabel.setText("Timer: " + String.format("%d:%02d", minutes, seconds));
             if (liveGanttChart != null) liveGanttChart.repaint();
             if (currentTime >= totalTime) {
                 simulationTimer.stop();
@@ -414,11 +385,11 @@ public class SimulatorOutput extends JPanel {
         simulationTimer.start();
     }
 
-    private void updateGanttChart(ArrayList<GanttChartBlocks> blocks) {
-        int PX_PER_UNIT = 30;
-        int BAR_H = 38;
-        int TICK_Y = BAR_H + 15;
-        int PAD_LEFT = 10;
+    public void updateGanttChart(ArrayList<GanttChartBlocks> blocks) {
+        int pxPerBlockUnit = 30;
+        int blockHeight = 38;
+        int timeStampLoc = blockHeight + 15;
+        int paddingLeft = 10;
 
         liveGanttChart = new JPanel() {
             @Override
@@ -428,44 +399,40 @@ public class SimulatorOutput extends JPanel {
 
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // --- 1. Draw all bars at full color ---
-                int x = PAD_LEFT;
+                
+                int x = paddingLeft;
 
                 g2.setFont(branding.jetBrainsBSmall);
                 g2.setColor(branding.light);
                 FontMetrics fmTick = g2.getFontMetrics();
-                g2.drawString("0", x - fmTick.stringWidth("0") / 2, TICK_Y);
+                g2.drawString("0", x - fmTick.stringWidth("0") / 2, timeStampLoc);
 
                 for (GanttChartBlocks block : blocks) {
-                    int width = (block.getEndTime() - block.getStartTime()) * PX_PER_UNIT;
+                    int width = (block.getEndTime() - block.getStartTime()) * pxPerBlockUnit;
                     g2.setColor(block.getColor());
-                    g2.fillRoundRect(x, 0, width, BAR_H, 10, 10);
-
-                    // Label
+                    g2.fillRoundRect(x, 0, width, blockHeight, 10, 10);
+                    
                     g2.setColor(Color.WHITE);
                     g2.setFont(branding.jetBrainsBMedium);
                     FontMetrics fm = g2.getFontMetrics();
                     int lx = x + (width - fm.stringWidth(block.getProcessID())) / 2;
-                    int ly = (BAR_H + fm.getAscent() - fm.getDescent()) / 2;
+                    int ly = (blockHeight + fm.getAscent() - fm.getDescent()) / 2;
                     g2.drawString(block.getProcessID(), lx, ly);
-
-                    // End tick
+                    
                     g2.setFont(branding.jetBrainsBSmall);
                     String t = String.valueOf(block.getEndTime());
                     g2.setColor(branding.light);
                     FontMetrics fmS = g2.getFontMetrics();
-                    g2.drawString(t, x + width - fmS.stringWidth(t) / 2, TICK_Y);
+                    g2.drawString(t, x + width - fmS.stringWidth(t) / 2, timeStampLoc);
 
                     x += width;
                 }
-
-                // --- 2. Overlay a dark mask over the unfilled (future) portion ---
-                int filledPx = PAD_LEFT + currentTime * PX_PER_UNIT;
-                int totalPx  = x; // x is now at the right edge of the last block
+                
+                int filledPx = paddingLeft + currentTime * pxPerBlockUnit;
+                int totalPx  = x;
                 if (filledPx < totalPx) {
-                    g2.setColor(new Color(0, 0, 0, 160)); // semi-transparent dark
-                    g2.fillRect(filledPx, 0, totalPx - filledPx, BAR_H);
+                    g2.setColor(new Color(0, 0, 0, 160));
+                    g2.fillRect(filledPx, 0, totalPx - filledPx, blockHeight);
                 }
 
                 g2.dispose();
@@ -473,18 +440,17 @@ public class SimulatorOutput extends JPanel {
 
             @Override
             public Dimension getPreferredSize() {
-                int totalWidth = PAD_LEFT;
+                int totalWidth = paddingLeft;
                 if (blocks != null) {
                     for (GanttChartBlocks b : blocks)
-                        totalWidth += (b.getEndTime() - b.getStartTime()) * PX_PER_UNIT;
+                        totalWidth += (b.getEndTime() - b.getStartTime()) * pxPerBlockUnit;
                 }
-                totalWidth += PAD_LEFT;
-                return new Dimension(Math.max(totalWidth, 600), 60);
+                totalWidth += paddingLeft;
+                return new Dimension(totalWidth, 60);
             }
         };
         liveGanttChart.setOpaque(false);
-
-        // Wrap in GridBagLayout panel so the chart is centered in the scroll viewport
+        
         JPanel ganttWrapper = new JPanel(new GridBagLayout());
         ganttWrapper.setOpaque(false);
         ganttWrapper.add(liveGanttChart);
@@ -494,20 +460,24 @@ public class SimulatorOutput extends JPanel {
         ganttScrollPane.repaint();
     }
 
-    private void updateProcessTable(ArrayList<Process> results) {
+    public void updateProcessTable(ArrayList<Process> results) {
         String[] headers = {
-            "Process ID", "Burst Time", "Arrival Time", "Priority No.",
-            "Waiting\nTime", "Turnaround\nTime"
+            "Process ID",
+            "Burst Time",
+            "Arrival Time",
+            "Priority No.",
+            "Waiting\nTime",
+            "Turnaround\nTime",
+            "Average Waiting\nTime",
+            "Average Turnaround\nTime"
         };
-
-        // Rebuild the fixed header panel (different column count than the placeholder)
+        
         tableHeaderPanel.removeAll();
         tableHeaderPanel.setLayout(new GridLayout(1, headers.length, 8, 0));
         for (String h : headers) tableHeaderPanel.add(createMultiLineHeader(h));
         tableHeaderPanel.revalidate();
         tableHeaderPanel.repaint();
-
-        // Only the data rows go into the scroll pane viewport
+        
         JPanel dataPanel = new JPanel();
         dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
         dataPanel.setOpaque(false);
@@ -519,7 +489,9 @@ public class SimulatorOutput extends JPanel {
                 String.valueOf(p.getArrivalTime()),
                 p.getPriority() > 0 ? String.valueOf(p.getPriority()) : "N/A",
                 String.valueOf(p.getWaitingTime()),
-                String.valueOf(p.getTurnaroundTime())
+                String.valueOf(p.getTurnaroundTime()),
+                String.valueOf("0"),
+                String.valueOf("0")
             };
             dataPanel.add(Box.createVerticalStrut(8));
             dataPanel.add(createDataRow(row, p.getColor()));
@@ -529,23 +501,18 @@ public class SimulatorOutput extends JPanel {
         tableScrollPane.revalidate();
         tableScrollPane.repaint();
     }
-
-    /**
-     * Re-creates all data rows with fresh borders/colours from the current theme.
-     * If no simulation has been run yet the placeholder rows are also refreshed.
-     */
+    
     public void refreshStyles() {
-        java.util.ArrayList<model.Process> results = mainEngine.getFinalProcesses();
+        ArrayList<model.Process> results = mainEngine.getFinalProcesses();
         if (results != null && !results.isEmpty()) {
             updateProcessTable(results);
         } else {
-            // Rebuild the placeholder rows shown before any simulation runs
             Object[][] data = {
                 { "P1", "2", "0", "N/A", "0", "2", "0", "2" },
                 { "P2", "2", "2", "N/A", "0", "2", "0", "2" },
                 { "P3", "2", "4", "N/A", "0", "2", "0", "2" },
             };
-            Color[] placeholderColors = { P1_COLOR, P2_COLOR, P3_COLOR };
+            Color[] placeholderColors = { branding.processColor[0], branding.processColor[1], branding.processColor[2] };
 
             JPanel dataPanel = new JPanel();
             dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));

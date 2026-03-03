@@ -1,13 +1,21 @@
 package graphics;
 
 import java.awt.*;
+import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.filechooser.*;
 import engine.MainEngine;
 import model.Process;
 
@@ -166,7 +174,7 @@ public class SimulatorMain extends JPanel {
             if (algorithm.contains("Round Robin")) {
                 quantum = Integer.parseInt(quantumTimeField.getText().trim());
             }
-            
+
             ArrayList<Process> processes = mainEngine.getGUI().getSimulatorMain().getProcesses();
             mainEngine.runSimulation(processes, algorithm, quantum);
 
@@ -315,9 +323,9 @@ public class SimulatorMain extends JPanel {
         idLabel.setBackground(labelColor);
         idLabel.setBorder(new LineBorder(labelColor, 10));
         idLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        idLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        idLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 if (selectedRows.contains(row)) {
                     selectedRows.remove(row);
                     idLabel.setBorder(new LineBorder(labelColor, 10));
@@ -386,24 +394,24 @@ public class SimulatorMain extends JPanel {
         btn.setPreferredSize(new Dimension(160, 44));
         btn.setMaximumSize(new Dimension(200, 44));
 
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+        btn.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
                 btn.setBackground(branding.dark);
             }
 
             @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
         });
@@ -440,24 +448,24 @@ public class SimulatorMain extends JPanel {
         btn.setBorder(new EmptyBorder(0, 20, 0, 20));
         btn.setBackground(branding.dark);
 
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+        btn.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
                 btn.setBackground(branding.dark);
             }
 
             @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
         });
@@ -480,7 +488,7 @@ public class SimulatorMain extends JPanel {
         box.setFont(branding.jetBrainsRMedium);
         box.setForeground(branding.light);
         box.setBackground(branding.dark);
-        box.setBorder(new LineBorder(branding.light, 1, true));
+        box.setBorder(new LineBorder(branding.light, 3, true));
         box.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value,
@@ -504,7 +512,7 @@ public class SimulatorMain extends JPanel {
     }
 
     public String generateProcessId() {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         String id;
         do {
             StringBuilder sb = new StringBuilder("P:");
@@ -523,13 +531,12 @@ public class SimulatorMain extends JPanel {
                 return c;
             }
         }
-        // Fallback: all 20 colors in use, pick the first one (shouldn't happen, max 20 processes)
+        
         return branding.processColor[0];
     }
 
     public void addProcess() {
-        long currentCount = java.util.Arrays.stream(processTablePanel.getComponents())
-            .filter(c -> c instanceof JPanel).count();
+        long currentCount = Arrays.stream(processTablePanel.getComponents()).filter(c -> c instanceof JPanel).count();
         if (currentCount >= 20) return;
 
         String id = generateProcessId();
@@ -551,10 +558,8 @@ public class SimulatorMain extends JPanel {
                 "No Process Selected", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-
-        // Count non-strut rows currently in the panel
-        long totalRows = java.util.Arrays.stream(processTablePanel.getComponents())
-            .filter(c -> c instanceof JPanel).count();
+        
+        long totalRows = Arrays.stream(processTablePanel.getComponents()).filter(c -> c instanceof JPanel).count();
 
         if (totalRows - selectedRows.size() < 3) {
             JOptionPane.showMessageDialog(this,
@@ -562,25 +567,20 @@ public class SimulatorMain extends JPanel {
                 "Cannot Remove", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
-        // Collect components to remove: selected rows + their adjacent struts
-        java.util.List<Component> toRemove = new ArrayList<>();
+        
+        List<Component> toRemove = new ArrayList<>();
         Component[] comps = processTablePanel.getComponents();
         for (int i = 0; i < comps.length; i++) {
             if (selectedRows.contains(comps[i])) {
                 toRemove.add(comps[i]);
-                // Remove the strut before this row (if any)
                 if (i > 0 && !(comps[i - 1] instanceof JPanel)) {
                     toRemove.add(comps[i - 1]);
-                }
-                // Or the strut after this row if it's the first component
-                else if (i == 0 && i + 1 < comps.length && !(comps[i + 1] instanceof JPanel)) {
+                } else if (i == 0 && i + 1 < comps.length && !(comps[i + 1] instanceof JPanel)) {
                     toRemove.add(comps[i + 1]);
                 }
             }
         }
-
-        // Free the IDs and colors of removed rows
+        
         for (Component c : toRemove) {
             if (c instanceof JPanel) {
                 JPanel row = (JPanel) c;
@@ -604,7 +604,8 @@ public class SimulatorMain extends JPanel {
         usedColors.clear();
         selectedRows.clear();
 
-        int processCount = 3 + (int)(Math.random() * 18); // 3–20 processes
+        // Processes: 3-20
+        int processCount = 3 + (int)(Math.random() * 18);
         boolean priorityEnabled = isPriorityAlgorithm();
         
         ArrayList<Integer> priorities = new ArrayList<>();
@@ -651,48 +652,51 @@ public class SimulatorMain extends JPanel {
     }
 
     public void importFromFile() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(new File("src"));
         chooser.setDialogTitle("Import Processes from Text File");
-        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Text files (*.txt)", "txt"));
+        chooser.setFileFilter(new FileNameExtensionFilter("Text files (*.txt)", "txt"));
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
-        java.io.File file = chooser.getSelectedFile();
-        java.util.List<String[]> rows = new java.util.ArrayList<>();
-        boolean hasPriority = false;
+        File file = chooser.getSelectedFile();
+        List<String[]> rows = new ArrayList<>();
+        boolean algoPriority = isPriorityAlgorithm();
 
-        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             int lineNumber = 0;
-            Boolean expectsPriority = null;
 
             while ((line = br.readLine()) != null) {
                 lineNumber++;
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) continue;
 
                 String[] parts = line.split(",");
-                if (parts.length < 2 || parts.length > 3) {
+                
+                if (parts.length != 4) {
                     JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": expected 2 or 3 comma-separated values, got " + parts.length + ".",
+                        "Line " + lineNumber + ": expected 4 comma-separated values (Process ID, Burst Time, Arrival Time, Priority), got " + parts.length + ".",
                         "Import Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-                boolean rowHasPriority = (parts.length == 3);
-                if (expectsPriority == null) {
-                    expectsPriority = rowHasPriority;
-                } else if (expectsPriority != rowHasPriority) {
+                
+                String processId = parts[0].trim();
+                if (processId.isEmpty()) {
                     JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": inconsistent columns — some rows have priority and others do not.",
+                        "Line " + lineNumber + ": Process ID cannot be empty.",
+                        "Import Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (usedProcessIds.contains(processId)) {
+                    JOptionPane.showMessageDialog(this,
+                        "Line " + lineNumber + ": Process ID \"" + processId + "\" is already in use.",
                         "Import Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 
                 int burst;
-                try { burst = Integer.parseInt(parts[0].trim()); }
+                try { burst = Integer.parseInt(parts[1].trim()); }
                 catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": burst time \"" + parts[0].trim() + "\" is not an integer.",
+                        "Line " + lineNumber + ": burst time \"" + parts[1].trim() + "\" is not an integer.",
                         "Import Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -704,10 +708,10 @@ public class SimulatorMain extends JPanel {
                 }
 
                 int arrival;
-                try { arrival = Integer.parseInt(parts[1].trim()); }
+                try { arrival = Integer.parseInt(parts[2].trim()); }
                 catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": arrival time \"" + parts[1].trim() + "\" is not an integer.",
+                        "Line " + lineNumber + ": arrival time \"" + parts[2].trim() + "\" is not an integer.",
                         "Import Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -717,22 +721,20 @@ public class SimulatorMain extends JPanel {
                         "Import Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-                if (rowHasPriority) {
-                    int priority;
-                    try { priority = Integer.parseInt(parts[2].trim()); }
-                    catch (NumberFormatException e) {
-                        JOptionPane.showMessageDialog(this,
-                            "Line " + lineNumber + ": priority \"" + parts[2].trim() + "\" is not an integer.",
-                            "Import Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    if (priority < 1 || priority > 20) {
-                        JOptionPane.showMessageDialog(this,
-                            "Line " + lineNumber + ": priority must be between 1 and 20 (got " + priority + ").",
-                            "Import Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                
+                int priority;
+                try { priority = Integer.parseInt(parts[3].trim()); }
+                catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this,
+                        "Line " + lineNumber + ": priority \"" + parts[3].trim() + "\" is not an integer.",
+                        "Import Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (priority < 1 || priority > 20) {
+                    JOptionPane.showMessageDialog(this,
+                        "Line " + lineNumber + ": priority must be between 1 and 20 (got " + priority + ").",
+                        "Import Error", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 rows.add(parts);
@@ -743,7 +745,7 @@ public class SimulatorMain extends JPanel {
                     return;
                 }
             }
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                 "Could not read file: " + e.getMessage(),
                 "Import Error", JOptionPane.ERROR_MESSAGE);
@@ -755,13 +757,11 @@ public class SimulatorMain extends JPanel {
                 "Import Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        hasPriority = rows.get(0).length == 3;
-
-        if (hasPriority) {
-            java.util.Set<Integer> seen = new java.util.HashSet<>();
+        
+        if (algoPriority) {
+            Set<Integer> seen = new HashSet<>();
             for (int i = 0; i < rows.size(); i++) {
-                int p = Integer.parseInt(rows.get(i)[2].trim());
+                int p = Integer.parseInt(rows.get(i)[3].trim());
                 if (!seen.add(p)) {
                     JOptionPane.showMessageDialog(this,
                         "Duplicate priority value " + p + " at process " + (i + 1) + ". Priorities must be unique.",
@@ -769,13 +769,6 @@ public class SimulatorMain extends JPanel {
                     return;
                 }
             }
-        }
-
-        boolean algoPriority = isPriorityAlgorithm();
-        if (hasPriority && !algoPriority) {
-            JOptionPane.showMessageDialog(this,
-                "The file contains priority values but the selected algorithm does not use priority.\nPriority column will be ignored.",
-                "Warning", JOptionPane.WARNING_MESSAGE);
         }
 
         processTablePanel.removeAll();
@@ -786,17 +779,17 @@ public class SimulatorMain extends JPanel {
 
         for (int i = 0; i < rows.size(); i++) {
             String[] parts = rows.get(i);
-            String id    = generateProcessId();
+            String id = parts[0].trim();
             usedProcessIds.add(id);
-            Color  color = nextProcessColor();
-            int    burst   = Integer.parseInt(parts[0].trim());
-            int    arrival = Integer.parseInt(parts[1].trim());
+            Color color = nextProcessColor();
+            int burst = Integer.parseInt(parts[1].trim());
+            int arrival = Integer.parseInt(parts[2].trim());
 
             JPanel row = createProcessRow(id, color, String.valueOf(burst), String.valueOf(arrival), algoPriority);
-
-            if (algoPriority && hasPriority) {
+            
+            if (algoPriority) {
                 JTextField priorityField = (JTextField) row.getComponent(3);
-                priorityField.setText(parts[2].trim());
+                priorityField.setText(parts[3].trim());
                 styleProcessField(priorityField, true);
             }
 
@@ -840,6 +833,7 @@ public class SimulatorMain extends JPanel {
 
     public void styleProcessField(JTextField field, boolean enabled) {
         field.setEnabled(enabled);
+        field.setFont(branding.jetBrainsBMedium);
         field.setBackground(branding.dark);
         field.setForeground(enabled ? branding.light : branding.darkGray);
         field.setCaretColor(enabled ? branding.light : branding.darkGray);
@@ -960,12 +954,12 @@ public class SimulatorMain extends JPanel {
         importTextFileBtn.setIcon(branding.lightIcoImportProcess);
         randomProcessesBtn.setIcon(branding.lightIcoRandomProcess);
 
-        for (java.awt.Component comp : processTablePanel.getComponents()) {
+        for (Component comp : processTablePanel.getComponents()) {
             if (comp instanceof JPanel) {
                 JPanel row = (JPanel) comp;
                 row.setBackground(branding.dark);
                 for (int i = 1; i < row.getComponentCount(); i++) {
-                    java.awt.Component c = row.getComponent(i);
+                    Component c = row.getComponent(i);
                     if (c instanceof JTextField) {
                         JTextField tf = (JTextField) c;
                         boolean enabled = tf.isEnabled();

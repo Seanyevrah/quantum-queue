@@ -3,8 +3,7 @@ package graphics;
 import engine.MainEngine;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class MainMenuSettings extends JPanel {
@@ -205,9 +204,9 @@ public class MainMenuSettings extends JPanel {
         cb.setOpaque(false);
         cb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        cb.addMouseListener(new java.awt.event.MouseAdapter() {
+        cb.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 boolean wasAlreadySelected = isDark ? darkSelected : lightSelected;
                 if (wasAlreadySelected) return;
 

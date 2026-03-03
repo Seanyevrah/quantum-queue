@@ -1,6 +1,7 @@
 package graphics;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -121,24 +122,24 @@ public class MainMenu extends JPanel {
         btn.setBorder(new EmptyBorder(0, 20, 0, 20));
         btn.setBackground(branding.dark);
 
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+        btn.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
+            public void mouseEntered(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
+            public void mouseExited(MouseEvent e) {
                 btn.setBackground(branding.dark);
             }
 
             @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
+            public void mouseReleased(MouseEvent e) {
                 btn.setBackground(branding.darkGray);
             }
         });
