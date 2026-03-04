@@ -26,15 +26,13 @@ public class SimulatorMain extends JPanel {
 
     private JPanel mainPanel;
     private JPanel leftPanel, rightPanel;
-
-    // Left panel components
+    
     private JLabel algorithmLabel, quantumTimeLabel;
     private JComboBox<String> algorithmComboBox;
     private JTextField quantumTimeField;
     private JButton simulateBtn;
     private JButton addProcessBtn, removeProcessBtn, importTextFileBtn, randomProcessesBtn;
-
-    // Right panel components
+    
     private JPanel processTablePanel;
     private JLabel priorityNoHeader;
 
@@ -98,7 +96,7 @@ public class SimulatorMain extends JPanel {
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
                 g2.setColor(branding.light);
                 g2.setStroke(new BasicStroke(3f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 18, 18);
+                g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 18, 18);
                 g2.dispose();
             }
         };
@@ -199,10 +197,10 @@ public class SimulatorMain extends JPanel {
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
         buttonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        addProcessBtn = createActionButton(branding.lightIcoAddProcess, "Add Process");
-        removeProcessBtn = createActionButton(branding.lightIcoRemoveProcess, "Remove Process");
-        importTextFileBtn = createActionButton(branding.lightIcoImportProcess, "Import Text File");
-        randomProcessesBtn = createActionButton(branding.lightIcoRandomProcess, "Random Processes");
+        addProcessBtn = createProcessButton(branding.lightIcoAddProcess, "Add Process");
+        removeProcessBtn = createProcessButton(branding.lightIcoRemoveProcess, "Remove Process");
+        importTextFileBtn = createProcessButton(branding.lightIcoImportProcess, "Import Text File");
+        randomProcessesBtn = createProcessButton(branding.lightIcoRandomProcess, "Random Processes");
 
         addProcessBtn.addActionListener(e -> addProcess());
         removeProcessBtn.addActionListener(e -> removeProcess());
@@ -419,7 +417,7 @@ public class SimulatorMain extends JPanel {
         return btn;
     }
     
-    public JButton createActionButton(ImageIcon icon, String text) {
+    public JButton createProcessButton(ImageIcon icon, String text) {
         JButton btn = new JButton(text, icon) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -660,101 +658,72 @@ public class SimulatorMain extends JPanel {
         File file = chooser.getSelectedFile();
         List<String[]> rows = new ArrayList<>();
         boolean algoPriority = isPriorityAlgorithm();
+        Set<String> importedProcessIds = new HashSet<>();
+        boolean hasError = false;
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             int lineNumber = 0;
 
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null && !hasError) {
                 lineNumber++;
                 line = line.trim();
 
                 String[] parts = line.split(",");
                 
-                if (parts.length != 4) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": expected 4 comma-separated values (Process ID, Burst Time, Arrival Time, Priority), got " + parts.length + ".",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                if (parts.length != 4 || 
+                    parts[0].trim().isEmpty() ||
+                    importedProcessIds.contains(parts[0].trim())) {
+                    hasError = true;
+                    break;
                 }
-                
-                String processId = parts[0].trim();
-                if (processId.isEmpty()) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": Process ID cannot be empty.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-                if (usedProcessIds.contains(processId)) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": Process ID \"" + processId + "\" is already in use.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+                importedProcessIds.add(parts[0].trim());
                 
                 int burst;
                 try { burst = Integer.parseInt(parts[1].trim()); }
                 catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": burst time \"" + parts[1].trim() + "\" is not an integer.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
                 if (burst < 1 || burst > 30) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": burst time must be between 1 and 30 (got " + burst + ").",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
 
                 int arrival;
                 try { arrival = Integer.parseInt(parts[2].trim()); }
                 catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": arrival time \"" + parts[2].trim() + "\" is not an integer.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
                 if (arrival < 0 || arrival > 30) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": arrival time must be between 0 and 30 (got " + arrival + ").",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
                 
                 int priority;
                 try { priority = Integer.parseInt(parts[3].trim()); }
                 catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": priority \"" + parts[3].trim() + "\" is not an integer.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
                 if (priority < 1 || priority > 20) {
-                    JOptionPane.showMessageDialog(this,
-                        "Line " + lineNumber + ": priority must be between 1 and 20 (got " + priority + ").",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
 
                 rows.add(parts);
                 if (rows.size() > 20) {
-                    JOptionPane.showMessageDialog(this,
-                        "File contains more than 20 processes (maximum is 20).",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
-                    return;
+                    hasError = true;
+                    break;
                 }
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                "Could not read file: " + e.getMessage(),
-                "Import Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            hasError = true;
         }
 
-        if (rows.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "File contains no process data.",
-                "Import Error", JOptionPane.ERROR_MESSAGE);
+        if (hasError || rows.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Error in importing text file! Invalid format detected.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -763,9 +732,7 @@ public class SimulatorMain extends JPanel {
             for (int i = 0; i < rows.size(); i++) {
                 int p = Integer.parseInt(rows.get(i)[3].trim());
                 if (!seen.add(p)) {
-                    JOptionPane.showMessageDialog(this,
-                        "Duplicate priority value " + p + " at process " + (i + 1) + ". Priorities must be unique.",
-                        "Import Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Error in importing text file! Invalid format detected.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }

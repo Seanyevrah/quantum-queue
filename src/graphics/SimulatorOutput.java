@@ -121,8 +121,12 @@ public class SimulatorOutput extends JPanel {
         wrapper.setOpaque(false);
 
         JPanel chart = new JPanel() {
-            String[] labels  = { "P1", "P2", "P3" };
-            Color[] colors  = { branding.processColor[0], branding.processColor[1], branding.processColor[2] };
+            String[] labels  = {"P1", "P2", "P3"};
+            Color[] colors  = {
+                branding.processColor[0],
+                branding.processColor[1],
+                branding.processColor[2]
+            };
             int[] ticks = { 0, 2, 4, 6 };
             int blockHeight = 38;
             int blockWidth = 100;
@@ -468,8 +472,8 @@ public class SimulatorOutput extends JPanel {
             "Priority No.",
             "Waiting\nTime",
             "Turnaround\nTime",
-            "Average Waiting\nTime",
-            "Average Turnaround\nTime"
+            "Average\nWaiting\nTime",
+            "Average\nTurnaround\nTime"
         };
         
         tableHeaderPanel.removeAll();
@@ -503,16 +507,20 @@ public class SimulatorOutput extends JPanel {
     }
     
     public void refreshStyles() {
-        ArrayList<model.Process> results = mainEngine.getFinalProcesses();
+        ArrayList<Process> results = mainEngine.getFinalProcesses();
         if (results != null && !results.isEmpty()) {
             updateProcessTable(results);
         } else {
             Object[][] data = {
-                { "P1", "2", "0", "N/A", "0", "2", "0", "2" },
-                { "P2", "2", "2", "N/A", "0", "2", "0", "2" },
-                { "P3", "2", "4", "N/A", "0", "2", "0", "2" },
+                {"P1", "2", "0", "N/A", "0", "2", "0", "2"},
+                {"P2", "2", "2", "N/A", "0", "2", "0", "2"},
+                {"P3", "2", "4", "N/A", "0", "2", "0", "2"},
             };
-            Color[] placeholderColors = { branding.processColor[0], branding.processColor[1], branding.processColor[2] };
+            Color[] placeholderColors = {
+                branding.processColor[0],
+                branding.processColor[1],
+                branding.processColor[2]
+            };
 
             JPanel dataPanel = new JPanel();
             dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));

@@ -10,8 +10,7 @@ public class MainMenuSettings extends JPanel {
     private Branding branding;
     private MainEngine mainEngine;
     private JPanel parentContainer;
-
-    private Runnable backAction;
+    
     private Runnable themeChangeListener;
 
     private JLabel titleLabel;
@@ -36,10 +35,6 @@ public class MainMenuSettings extends JPanel {
         initializeMainPanel();
     }
 
-    public void setBackAction(Runnable action) {
-        this.backAction = action;
-    }
-
     public void setThemeChangeListener(Runnable listener) {
         this.themeChangeListener = listener;
     }
@@ -48,11 +43,11 @@ public class MainMenuSettings extends JPanel {
         JPanel margin = new JPanel(new BorderLayout());
         margin.setOpaque(false);
 
-        int m = 60, n = 300;
-        margin.add(blankPanel(m, 0, false), BorderLayout.NORTH);
-        margin.add(blankPanel(m, 0, false), BorderLayout.SOUTH);
-        margin.add(blankPanel(0, n, true),  BorderLayout.WEST);
-        margin.add(blankPanel(0, n, true),  BorderLayout.EAST);
+        int paddingX = 300, paddingY = 60;
+        margin.add(blankPanel(paddingY, 0, false), BorderLayout.NORTH);
+        margin.add(blankPanel(paddingY, 0, false), BorderLayout.SOUTH);
+        margin.add(blankPanel(0, paddingX, true),  BorderLayout.WEST);
+        margin.add(blankPanel(0, paddingX, true),  BorderLayout.EAST);
 
         container = new JPanel(null) {
             @Override
@@ -142,7 +137,6 @@ public class MainMenuSettings extends JPanel {
         backButton.setFocusPainted(false);
         backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backButton.addActionListener(e -> {
-            if (backAction != null) backAction.run();
             if (parentContainer != null) {
                 CardLayout cl = (CardLayout) parentContainer.getLayout();
                 cl.show(parentContainer, "MainMenu");
@@ -210,7 +204,7 @@ public class MainMenuSettings extends JPanel {
                 boolean wasAlreadySelected = isDark ? darkSelected : lightSelected;
                 if (wasAlreadySelected) return;
 
-                darkSelected  = isDark;
+                darkSelected = isDark;
                 lightSelected = !isDark;
                 
                 branding.toggleTheme();

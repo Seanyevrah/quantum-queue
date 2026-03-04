@@ -207,7 +207,7 @@ public class MainMenuHowToUse extends JPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
                 int pw = getWidth(), ph = getHeight();
                 if (image != null) {
@@ -228,8 +228,7 @@ public class MainMenuHowToUse extends JPanel {
                     g2.setColor(new Color(28, 28, 28));
                     g2.fillRoundRect(0, 0, pw, ph, 12, 12);
                     g2.setColor(new Color(70, 70, 70));
-                    g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND,
-                            BasicStroke.JOIN_ROUND, 0, new float[]{7, 4}, 0));
+                    g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[]{7, 4}, 0));
                     g2.drawRoundRect(1, 1, pw - 2, ph - 2, 12, 12);
                     g2.setStroke(new BasicStroke(1f));
                     g2.setColor(new Color(55, 55, 55));
