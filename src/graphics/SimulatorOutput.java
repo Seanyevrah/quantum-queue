@@ -485,6 +485,17 @@ public class SimulatorOutput extends JPanel {
         JPanel dataPanel = new JPanel();
         dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
         dataPanel.setOpaque(false);
+        
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+
+        for (Process p : results) {
+            totalWaitingTime += p.getWaitingTime();
+            totalTurnaroundTime += p.getTurnaroundTime();
+        }
+        
+        double avgWaitingTime = results.isEmpty() ? 0 : (double) totalWaitingTime / results.size();
+        double avgTurnaroundTime = results.isEmpty() ? 0 : (double) totalTurnaroundTime / results.size();
 
         for (Process p : results) {
             Object[] row = {
@@ -494,8 +505,8 @@ public class SimulatorOutput extends JPanel {
                 p.getPriority() > 0 ? String.valueOf(p.getPriority()) : "N/A",
                 String.valueOf(p.getWaitingTime()),
                 String.valueOf(p.getTurnaroundTime()),
-                String.valueOf("0"),
-                String.valueOf("0")
+                String.format("%.2f", avgWaitingTime),
+                String.format("%.2f", avgTurnaroundTime)
             };
             dataPanel.add(Box.createVerticalStrut(8));
             dataPanel.add(createDataRow(row, p.getColor()));
