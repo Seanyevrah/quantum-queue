@@ -909,7 +909,43 @@ public class SimulatorMain extends JPanel {
     // ==================================================
 
     public ArrayList<Process> getProcesses() {
-        return this.processes;
+        ArrayList<Process> currentProcesses = new ArrayList<>();
+
+        for (Component comp : processTablePanel.getComponents()) {
+            if (!(comp instanceof JPanel)) {
+                continue;
+            }
+
+            JPanel row = (JPanel) comp;
+            if (row.getComponentCount() < 4) {
+                continue;
+            }
+
+            JLabel idLabel = (JLabel) row.getComponent(0);
+            JTextField burstField = (JTextField) row.getComponent(1);
+            JTextField arrivalField = (JTextField) row.getComponent(2);
+            JTextField priorityField = (JTextField) row.getComponent(3);
+
+            int burst = Integer.parseInt(burstField.getText().trim());
+            int arrival = Integer.parseInt(arrivalField.getText().trim());
+            int priority = 0;
+
+            if (priorityField.isEnabled()) {
+                priority = Integer.parseInt(priorityField.getText().trim());
+            }
+
+            Process process = new Process(
+                idLabel.getText().trim(),
+                idLabel.getBackground(),
+                arrival,
+                burst,
+                priority
+            );
+
+            currentProcesses.add(process);
+        }
+
+        return currentProcesses;
     }
     
     public void refreshStyles() {

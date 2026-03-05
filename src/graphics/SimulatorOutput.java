@@ -358,6 +358,7 @@ public class SimulatorOutput extends JPanel {
     public void loadSimulationResults() {
         ArrayList<Process> results = mainEngine.getFinalProcesses();
         ArrayList<GanttChartBlocks> blocks = mainEngine.getGanttChartBlocks();
+        setAlgorithmNameLabel(mainEngine.getSelectedAlgorithm());
         
         totalTime = 0;
         if (blocks != null) {
