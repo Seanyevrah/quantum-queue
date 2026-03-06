@@ -38,8 +38,7 @@ public class PriorityPreemptive {
                 if (p.getArrivalTime() > currentTime || p.getRemainingTime() <= 0) {
                     continue;
                 }
-
-                // Priority Preemptive: lower priority number = higher priority
+                
                 if (currentProcess == null
                     || p.getPriority() < currentProcess.getPriority()
                     || (p.getPriority() == currentProcess.getPriority()

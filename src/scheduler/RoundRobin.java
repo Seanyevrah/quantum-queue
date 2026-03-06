@@ -37,7 +37,6 @@ public class RoundRobin {
         ArrayList<Process> arrivedProcesses = new ArrayList<>();
 
         while (completed < process.size()) {
-            // Add newly arrived processes to ready queue
             for (Process p : process) {
                 if (p.getArrivalTime() == currentTime && !arrivedProcesses.contains(p)) {
                     readyQueue.add(p);
@@ -63,8 +62,7 @@ public class RoundRobin {
 
             currentTime += executionTime;
             currentProcess.setRemainingTime(currentProcess.getRemainingTime() - executionTime);
-
-            // Add newly arrived processes during execution
+            
             for (Process p : process) {
                 if (p.getArrivalTime() > (currentTime - executionTime) 
                     && p.getArrivalTime() <= currentTime 

@@ -51,7 +51,7 @@ public class SRTF {
             }
 
             if (currentProcess == null) {
-                addOrExtendGanttBlock("IDLE", Color.GRAY, currentTime, currentTime + 1);
+                addOrExtendGanttBlock("-", Color.GRAY, currentTime, currentTime + 1);
                 currentTime++;
                 continue;
             }

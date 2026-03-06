@@ -38,8 +38,7 @@ public class SJF {
                 if (p.getArrivalTime() > currentTime || p.getRemainingTime() <= 0) {
                     continue;
                 }
-
-                // SJF: pick shortest burst time; break ties by arrival time, then process ID
+                
                 if (currentProcess == null
                     || p.getBurstTime() < currentProcess.getBurstTime()
                     || (p.getBurstTime() == currentProcess.getBurstTime()

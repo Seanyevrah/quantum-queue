@@ -513,10 +513,10 @@ public class SimulatorMain extends JPanel {
     }
 
     public String generateProcessId() {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String id;
         do {
-            StringBuilder sb = new StringBuilder("P:");
+            StringBuilder sb = new StringBuilder("");
             sb.append(chars.charAt((int)(Math.random() * chars.length())));
             id = sb.toString();
         } while (usedProcessIds.contains(id));

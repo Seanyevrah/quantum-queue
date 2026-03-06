@@ -240,36 +240,17 @@ public class MainMenuHowToUse extends JPanel {
                 }
                 
                 int pw = getWidth(), ph = getHeight();
-                if (currentImage != null) {
-                    int imgW = currentImage.getWidth(this);
-                    int imgH = currentImage.getHeight(this);
+                int imgW = currentImage.getWidth(this);
+                int imgH = currentImage.getHeight(this);
+                
+                double scale = Math.min((double) pw / imgW, (double) ph / imgH);
+                int drawW = (int) (imgW * scale);
+                int drawH = (int) (imgH * scale);
 
-                    if (imgW > 0 && imgH > 0) {
-                        double scale = Math.min((double) pw / imgW, (double) ph / imgH);
-                        int drawW = (int) (imgW * scale);
-                        int drawH = (int) (imgH * scale);
+                int drawX = (pw - drawW) / 2;
+                int drawY = (ph - drawH) / 2;
 
-                        int drawX = (pw - drawW) / 2;
-                        int drawY = (ph - drawH) / 2;
-
-                        g2.drawImage(currentImage, drawX, drawY, drawW, drawH, this);
-                    }
-                } else {
-                    g2.setColor(new Color(28, 28, 28));
-                    g2.fillRoundRect(0, 0, pw, ph, 12, 12);
-                    g2.setColor(new Color(70, 70, 70));
-                    g2.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 0, new float[]{7, 4}, 0));
-                    g2.drawRoundRect(1, 1, pw - 2, ph - 2, 12, 12);
-                    g2.setStroke(new BasicStroke(1f));
-                    g2.setColor(new Color(55, 55, 55));
-                    g2.drawLine(10, 10, pw - 10, ph - 10);
-                    g2.drawLine(pw - 10, 10, 10, ph - 10);
-                    g2.setFont(branding.jetBrainsBMedium);
-                    g2.setColor(new Color(110, 110, 110));
-                    FontMetrics fm = g2.getFontMetrics();
-                    String txt = "[branding." + imageType + "]";
-                    g2.drawString(txt, (pw - fm.stringWidth(txt)) / 2, ph / 2 + fm.getAscent() / 2 - 2);
-                }
+                g2.drawImage(currentImage, drawX, drawY, drawW, drawH, this);
                 g2.dispose();
             }
         };
