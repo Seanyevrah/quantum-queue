@@ -20,7 +20,8 @@ public class Branding {
     public ImageIcon darkIcoSimulate, darkIcoHowToUse, darkIcoSettings, darkIcoExit;
     public ImageIcon darkIcoAddProcess, darkIcoRemoveProcess, darkIcoImportProcess, darkIcoRandomProcess;
     public Image backgroundDark, backgroundLight;
-    public Image howToUseAlgo, howToUseInput, howToUseButtons, howToUseOutput;
+    public Image darkHowToUseAlgo, darkHowToUseInput, darkHowToUseButtons, darkHowToUseOutput;
+    public Image lightHowToUseAlgo, lightHowToUseInput, lightHowToUseButtons, lightHowToUseOutput;
 
     public Branding() {
         initializeFonts();
@@ -78,6 +79,22 @@ public class Branding {
         ImageIcon tmpRandom = darkIcoRandomProcess;
         darkIcoRandomProcess = lightIcoRandomProcess;
         lightIcoRandomProcess = tmpRandom;
+
+        Image tmpAlgo = darkHowToUseAlgo;
+        darkHowToUseAlgo = lightHowToUseAlgo;
+        lightHowToUseAlgo = tmpAlgo;
+
+        Image tmpBtn = darkHowToUseButtons;
+        darkHowToUseButtons = lightHowToUseButtons;
+        lightHowToUseButtons = tmpBtn;
+
+        Image tmpInput = darkHowToUseInput;
+        darkHowToUseInput = lightHowToUseInput;
+        lightHowToUseInput = tmpInput;
+
+        Image tmpOutput = darkHowToUseOutput;
+        darkHowToUseOutput = lightHowToUseOutput;
+        lightHowToUseOutput = tmpOutput;
 
         isDark = !isDark;
     }
@@ -182,10 +199,15 @@ public class Branding {
             backgroundDark = ImageIO.read(getClass().getResourceAsStream("/assets/images/background-dark.png"));
             backgroundLight = ImageIO.read(getClass().getResourceAsStream("/assets/images/background-light.png"));
 
-            howToUseAlgo = ImageIO.read(getClass().getResourceAsStream("/assets/images/howtouse-algorithm.png"));
-            howToUseInput = ImageIO.read(getClass().getResourceAsStream("/assets/images/howtouse-inputs.png"));
-            howToUseButtons = ImageIO.read(getClass().getResourceAsStream("/assets/images/howtouse-buttons.png"));
-            howToUseOutput = ImageIO.read(getClass().getResourceAsStream("/assets/images/howtouse-output.png"));
+            darkHowToUseAlgo = ImageIO.read(getClass().getResourceAsStream("/assets/images/dark-howtouse-algorithm.png"));
+            darkHowToUseInput = ImageIO.read(getClass().getResourceAsStream("/assets/images/dark-howtouse-inputs.png"));
+            darkHowToUseButtons = ImageIO.read(getClass().getResourceAsStream("/assets/images/dark-howtouse-buttons.png"));
+            darkHowToUseOutput = ImageIO.read(getClass().getResourceAsStream("/assets/images/dark-howtouse-output.png"));
+
+            lightHowToUseAlgo = ImageIO.read(getClass().getResourceAsStream("/assets/images/light-howtouse-algorithm.png"));
+            lightHowToUseInput = ImageIO.read(getClass().getResourceAsStream("/assets/images/light-howtouse-inputs.png"));
+            lightHowToUseButtons = ImageIO.read(getClass().getResourceAsStream("/assets/images/light-howtouse-buttons.png"));
+            lightHowToUseOutput = ImageIO.read(getClass().getResourceAsStream("/assets/images/light-howtouse-output.png"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

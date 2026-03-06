@@ -1,0 +1,5 @@
+prefe,3,0,5
+p_32,4,1,3
+proc_a,2,2,1
+process_b,5,0,2
+high_pri,2,3,4

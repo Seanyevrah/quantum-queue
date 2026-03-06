@@ -24,12 +24,10 @@ public class MainEngine {
 
     private ArrayList<Process> finalProcesses;
     private ArrayList<GanttChartBlocks> ganttChartBlocks;
-    private String selectedAlgorithm;
 
     public MainEngine() {
         finalProcesses = new ArrayList<>();
         ganttChartBlocks = new ArrayList<>();
-        selectedAlgorithm = "";
         initializeAlgorithms();
     }
 
@@ -43,30 +41,27 @@ public class MainEngine {
     }
 
     public void runSimulation(ArrayList<Process> processes, String algorithm, int quantum) {
-        finalProcesses = new ArrayList<>();
-        ganttChartBlocks = new ArrayList<>();
-        selectedAlgorithm = algorithm == null ? "" : algorithm;
+        ganttChartBlocks.clear();
 
         if (processes == null || processes.isEmpty()) {
             System.out.println("No processes to simulate.");
             return;
         }
 
-        String algorithmKey = normalizeAlgorithmKey(algorithm);
-        System.out.println("Running algorithm: " + selectedAlgorithm + " [" + algorithmKey + "]");
+        System.out.println("Running algorithm: " + algorithm);
 
-        switch (algorithmKey) {
-            case "FCFS":
+        switch (algorithm) {
+            case "FCFS (First Come First Serve)":
                 finalProcesses = fcfs.run(processes);
                 ganttChartBlocks = fcfs.getGanttChartBlocks();
                 break;
 
-            case "SJF":
+            case "SJF (Shortest Job First)":
                 finalProcesses = sjf.run(processes);
                 ganttChartBlocks = sjf.getGanttChartBlocks();
                 break;
 
-            case "SRTF":
+            case "SRTF (Shortest Remaining Time First)":
                 finalProcesses = srtf.run(processes);
                 ganttChartBlocks = srtf.getGanttChartBlocks();
                 break;
@@ -77,12 +72,12 @@ public class MainEngine {
                 ganttChartBlocks = roundRobin.getGanttChartBlocks();
                 break;
 
-            case "PRIORITY_PREEMPTIVE":
+            case "Priority (Preemptive)":
                 finalProcesses = priorityPreemptive.run(processes);
                 ganttChartBlocks = priorityPreemptive.getGanttChartBlocks();
                 break;
 
-            case "PRIORITY_NON_PREEMPTIVE":
+            case "Priority (Non-Preemptive)":
                 finalProcesses = priorityNonPreemptive.run(processes);
                 ganttChartBlocks = priorityNonPreemptive.getGanttChartBlocks();
                 break;
@@ -92,41 +87,7 @@ public class MainEngine {
                 break;
         }
 
-        gui.getSimulatorOutput().setAlgorithmNameLabel(selectedAlgorithm);
-    }
-
-    private String normalizeAlgorithmKey(String algorithm) {
-        if (algorithm == null) {
-            return "UNKNOWN";
-        }
-
-        String normalized = algorithm.trim().toUpperCase();
-
-        if (normalized.contains("FCFS") || normalized.contains("FIRST COME")) {
-            return "FCFS";
-        }
-
-        if (normalized.contains("SRTF") || normalized.contains("STRF") || normalized.contains("SHORTEST REMAINING")) {
-            return "SRTF";
-        }
-
-        if (normalized.contains("SJF") || normalized.contains("SHORTEST JOB")) {
-            return "SJF";
-        }
-
-        if (normalized.contains("ROUND ROBIN")) {
-            return "Round Robin";
-        }
-
-        if (normalized.contains("PRIORITY") && normalized.contains("NON")) {
-            return "PRIORITY_NON_PREEMPTIVE";
-        }
-
-        if (normalized.contains("PRIORITY") && normalized.contains("PREEMPTIVE")) {
-            return "PRIORITY_PREEMPTIVE";
-        }
-
-        return "UNKNOWN";
+        gui.getSimulatorOutput().setAlgorithmNameLabel(algorithm);
     }
 
 
@@ -156,13 +117,5 @@ public class MainEngine {
 
     public void setGanttChartBlocks(ArrayList<GanttChartBlocks> ganttChartBlocks) {
         this.ganttChartBlocks = ganttChartBlocks;
-    }
-
-    public String getSelectedAlgorithm() {
-        return selectedAlgorithm;
-    }
-
-    public void setSelectedAlgorithm(String selectedAlgorithm) {
-        this.selectedAlgorithm = selectedAlgorithm;
     }
 }

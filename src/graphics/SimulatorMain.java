@@ -173,6 +173,9 @@ public class SimulatorMain extends JPanel {
                 quantum = Integer.parseInt(quantumTimeField.getText().trim());
             }
 
+            // Rebuild processes ArrayList from the current UI table
+            rebuildProcessesFromUI();
+            
             ArrayList<Process> processes = mainEngine.getGUI().getSimulatorMain().getProcesses();
             mainEngine.runSimulation(processes, algorithm, quantum);
 
@@ -514,9 +517,7 @@ public class SimulatorMain extends JPanel {
         String id;
         do {
             StringBuilder sb = new StringBuilder("P:");
-            for (int i = 0; i < 2; i++) {
-                sb.append(chars.charAt((int)(Math.random() * chars.length())));
-            }
+            sb.append(chars.charAt((int)(Math.random() * chars.length())));
             id = sb.toString();
         } while (usedProcessIds.contains(id));
         return id;
@@ -552,7 +553,7 @@ public class SimulatorMain extends JPanel {
     public void removeProcess() {
         if (selectedRows.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                "Please select a process by clicking on its Process ID label.",
+                "Please select a process by clicking on the Process ID label.",
                 "No Process Selected", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -562,7 +563,7 @@ public class SimulatorMain extends JPanel {
         if (totalRows - selectedRows.size() < 3) {
             JOptionPane.showMessageDialog(this,
                 "At least three processes must remain.",
-                "Cannot Remove", JOptionPane.WARNING_MESSAGE);
+                "Minimum Processes", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -903,49 +904,62 @@ public class SimulatorMain extends JPanel {
         }
     }
 
+    public void rebuildProcessesFromUI() {
+        processes.clear();
+        int processIndex = 1;
+        
+        for (Component comp : processTablePanel.getComponents()) {
+            if (!(comp instanceof JPanel)) continue;
+            
+            JPanel row = (JPanel) comp;
+            Component[] fields = row.getComponents();
+            
+            if (fields.length < 3) continue;
+            
+            String processId = null;
+            if (fields[0] instanceof JLabel) {
+                processId = ((JLabel) fields[0]).getText();
+            } else {
+                continue;
+            }
+            
+            JTextField burstField = (JTextField) fields[1];
+            int burst = Integer.parseInt(burstField.getText().trim());
+            
+            JTextField arrivalField = (JTextField) fields[2];
+            int arrival = Integer.parseInt(arrivalField.getText().trim());
+            
+            int priority = 0;
+            if (fields.length > 3 && fields[3] instanceof JTextField) {
+                JTextField priorityField = (JTextField) fields[3];
+                if (priorityField.isEnabled()) {
+                    try {
+                        priority = Integer.parseInt(priorityField.getText().trim());
+                    } catch (NumberFormatException e) {
+                        priority = 0;
+                    }
+                }
+            }
+            
+            Color color = Color.BLACK;
+            if (fields[0] instanceof JLabel) {
+                color = ((JLabel) fields[0]).getBackground();
+            }
+            
+            Process p = new Process(processId, color, arrival, burst, processIndex);
+            p.setPriority(priority);
+            
+            processes.add(p);
+            processIndex++;
+        }
+    }
 
     // ==================================================
     //                GETTERS AND SETTERS
     // ==================================================
 
     public ArrayList<Process> getProcesses() {
-        ArrayList<Process> currentProcesses = new ArrayList<>();
-
-        for (Component comp : processTablePanel.getComponents()) {
-            if (!(comp instanceof JPanel)) {
-                continue;
-            }
-
-            JPanel row = (JPanel) comp;
-            if (row.getComponentCount() < 4) {
-                continue;
-            }
-
-            JLabel idLabel = (JLabel) row.getComponent(0);
-            JTextField burstField = (JTextField) row.getComponent(1);
-            JTextField arrivalField = (JTextField) row.getComponent(2);
-            JTextField priorityField = (JTextField) row.getComponent(3);
-
-            int burst = Integer.parseInt(burstField.getText().trim());
-            int arrival = Integer.parseInt(arrivalField.getText().trim());
-            int priority = 0;
-
-            if (priorityField.isEnabled()) {
-                priority = Integer.parseInt(priorityField.getText().trim());
-            }
-
-            Process process = new Process(
-                idLabel.getText().trim(),
-                idLabel.getBackground(),
-                arrival,
-                burst,
-                priority
-            );
-
-            currentProcesses.add(process);
-        }
-
-        return currentProcesses;
+        return this.processes;
     }
     
     public void refreshStyles() {

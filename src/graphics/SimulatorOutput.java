@@ -102,7 +102,7 @@ public class SimulatorOutput extends JPanel {
         headerRow.add(timerLabel, BorderLayout.WEST);
         headerRow.add(algorithmNameLabel, BorderLayout.EAST);
         
-        JPanel chartContent = createGanttChart();
+        JPanel chartContent = createEmptyGanttChart();
         ganttScrollPane = new JScrollPane(chartContent, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         ganttScrollPane.setBorder(null);
         ganttScrollPane.setOpaque(false);
@@ -114,6 +114,19 @@ public class SimulatorOutput extends JPanel {
 
         topPanel.add(headerRow, BorderLayout.NORTH);
         topPanel.add(ganttChartPanel, BorderLayout.CENTER);
+    }
+    
+    public JPanel createEmptyGanttChart() {
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setOpaque(false);
+        wrapper.setPreferredSize(new Dimension(800, 60));
+        
+        JLabel placeholder = new JLabel("Load simulation to see Gantt chart...");
+        placeholder.setForeground(branding.light);
+        placeholder.setFont(branding.jetBrainsBSmall);
+        wrapper.add(placeholder);
+        
+        return wrapper;
     }
     
     public JPanel createGanttChart() {
@@ -128,8 +141,8 @@ public class SimulatorOutput extends JPanel {
                 branding.processColor[2]
             };
             int[] ticks = { 0, 2, 4, 6 };
-            int blockHeight = 38;
-            int blockWidth = 100;
+            int blockHeight = 50;
+            int blockWidth = 70;
             int timeStampLoc = blockHeight + 6;
             int paddingLeft = 10;
 
@@ -358,7 +371,6 @@ public class SimulatorOutput extends JPanel {
     public void loadSimulationResults() {
         ArrayList<Process> results = mainEngine.getFinalProcesses();
         ArrayList<GanttChartBlocks> blocks = mainEngine.getGanttChartBlocks();
-        setAlgorithmNameLabel(mainEngine.getSelectedAlgorithm());
         
         totalTime = 0;
         if (blocks != null) {
@@ -376,7 +388,7 @@ public class SimulatorOutput extends JPanel {
             simulationTimer.stop();
         }
         
-        simulationTimer = new Timer(1000, null);
+        simulationTimer = new Timer(500, null);
         simulationTimer.addActionListener(e -> {
             currentTime++;
             int minutes = currentTime / 60;
@@ -503,7 +515,7 @@ public class SimulatorOutput extends JPanel {
                 p.getID(),
                 String.valueOf(p.getBurstTime()),
                 String.valueOf(p.getArrivalTime()),
-                p.getPriority() > 0 ? String.valueOf(p.getPriority()) : "N/A",
+                p.getPriority() <= 0 ? "N/A" : String.valueOf(p.getPriority()),
                 String.valueOf(p.getWaitingTime()),
                 String.valueOf(p.getTurnaroundTime()),
                 String.format("%.2f", avgWaitingTime),
@@ -519,32 +531,56 @@ public class SimulatorOutput extends JPanel {
     }
     
     public void refreshStyles() {
+        setBackground(branding.dark);
+        topPanel.setBackground(branding.dark);
+        bottomPanel.setBackground(branding.dark);
+        mainPanel.setBackground(branding.dark);
+        
+        timerLabel.setForeground(branding.light);
+        algorithmNameLabel.setForeground(branding.light);
+        
+        goBackButton.setBackground(branding.dark);
+        goBackButton.setForeground(branding.light);
+        
+        if (tableHeaderPanel != null) {
+            for (Component comp : tableHeaderPanel.getComponents()) {
+                if (comp instanceof JPanel) {
+                    for (Component innerComp : ((JPanel)comp).getComponents()) {
+                        if (innerComp instanceof JLabel) {
+                            ((JLabel)innerComp).setForeground(branding.light);
+                        }
+                    }
+                }
+            }
+        }
+        
         ArrayList<Process> results = mainEngine.getFinalProcesses();
         if (results != null && !results.isEmpty()) {
             updateProcessTable(results);
+            ArrayList<GanttChartBlocks> blocks = mainEngine.getGanttChartBlocks();
+            if (blocks != null && !blocks.isEmpty()) {
+                updateGanttChart(blocks);
+            }
         } else {
-            Object[][] data = {
-                {"P1", "2", "0", "N/A", "0", "2", "0", "2"},
-                {"P2", "2", "2", "N/A", "0", "2", "0", "2"},
-                {"P3", "2", "4", "N/A", "0", "2", "0", "2"},
-            };
-            Color[] placeholderColors = {
-                branding.processColor[0],
-                branding.processColor[1],
-                branding.processColor[2]
-            };
-
             JPanel dataPanel = new JPanel();
             dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
             dataPanel.setOpaque(false);
-            for (int i = 0; i < data.length; i++) {
-                dataPanel.add(Box.createVerticalStrut(8));
-                dataPanel.add(createDataRow(data[i], placeholderColors[i]));
-            }
+            
+            JLabel placeholderLabel = new JLabel("Run a simulation to see results");
+            placeholderLabel.setForeground(branding.light);
+            placeholderLabel.setFont(branding.jetBrainsBMedium);
+            placeholderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            dataPanel.add(Box.createVerticalGlue());
+            dataPanel.add(placeholderLabel);
+            dataPanel.add(Box.createVerticalGlue());
+            
             tableScrollPane.setViewportView(dataPanel);
             tableScrollPane.revalidate();
             tableScrollPane.repaint();
         }
+        
+        revalidate();
+        repaint();
     }
 
     public void setAlgorithmNameLabel(String label) {

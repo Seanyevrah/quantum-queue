@@ -1,0 +1,7 @@
+idle_time,10,5,8
+quick_job,1,0,1
+medium_task,8,10,5
+short_burst,2,3,3
+long_running,15,2,10
+fast_process,3,8,2
+bulk_work,12,4,7

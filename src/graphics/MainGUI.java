@@ -64,15 +64,12 @@ public class MainGUI {
         mainPanel.add(simulatorOutput, "SimulatorOutput");
         mainFrame.add(mainPanel);
     }
-
-
-    // ==================================================
-    //                   THEME
-    // ==================================================
+    
     public void applyTheme() {
         applyThemeRecursive(mainPanel);
         simulatorMain.refreshStyles();
         simulatorOutput.refreshStyles();
+        mainMenuHowToUse.refreshStyles();
         mainMenu.refreshIcons();
         mainPanel.repaint();
     }

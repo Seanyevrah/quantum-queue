@@ -75,7 +75,7 @@ public class MainMenuHowToUse extends JPanel {
         algoDesc = makeText("Select your preferred algorithm by choosing from the dropdown menu.");
         c.add(algoDesc);
 
-        algoImage = makeImagePanel(branding.howToUseAlgo, "howToUseAlgo");
+        algoImage = makeImagePanel(null, "algo");
         c.add(algoImage);
 
         outputDesc = makeText("The output of the simulation will be shown here along with the Gantt chart and the computation table.");
@@ -86,16 +86,16 @@ public class MainMenuHowToUse extends JPanel {
         tableTitleLabel.setForeground(branding.light);
         c.add(tableTitleLabel);
 
-        tableImage = makeImagePanel(branding.howToUseInput, "howToUseInput");
+        tableImage = makeImagePanel(null, "input");
         c.add(tableImage);
 
         removeHint = makeText("To remove multiple processes, select the process under the Process Id column and select the Remove Process button.");
         c.add(removeHint);
 
-        buttonsImage = makeImagePanel(branding.howToUseButtons, "howToUseButtons");
+        buttonsImage = makeImagePanel(null, "buttons");
         c.add(buttonsImage);
 
-        outputImage = makeImagePanel(branding.howToUseOutput, "howToUseOutput");
+        outputImage = makeImagePanel(null, "output");
         c.add(outputImage);
 
         backButton = new JButton("Back to Menu") {
@@ -145,6 +145,24 @@ public class MainMenuHowToUse extends JPanel {
             }
         });
         c.add(backButton);
+    }
+    
+    public void refreshStyles() {
+        titleLabel.setForeground(branding.light);
+        tableTitleLabel.setForeground(branding.light);
+        algoDesc.setForeground(branding.light);
+        outputDesc.setForeground(branding.light);
+        removeHint.setForeground(branding.light);
+        backButton.setForeground(branding.light);
+        backButton.setBackground(branding.dark);
+        
+        algoImage.repaint();
+        tableImage.repaint();
+        buttonsImage.repaint();
+        outputImage.repaint();
+        
+        repaint();
+        revalidate();
     }
     
     public void repositionContent(int W, int H) {
@@ -201,7 +219,7 @@ public class MainMenuHowToUse extends JPanel {
         return ta;
     }
 
-    public JPanel makeImagePanel(Image image, String fieldName) {
+    public JPanel makeImagePanel(Image image, String imageType) {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -209,10 +227,22 @@ public class MainMenuHowToUse extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                
+                Image currentImage = null;
+                if ("algo".equals(imageType)) {
+                    currentImage = branding.darkHowToUseAlgo;
+                } else if ("input".equals(imageType)) {
+                    currentImage = branding.darkHowToUseInput;
+                } else if ("buttons".equals(imageType)) {
+                    currentImage = branding.darkHowToUseButtons;
+                } else if ("output".equals(imageType)) {
+                    currentImage = branding.darkHowToUseOutput;
+                }
+                
                 int pw = getWidth(), ph = getHeight();
-                if (image != null) {
-                    int imgW = image.getWidth(this);
-                    int imgH = image.getHeight(this);
+                if (currentImage != null) {
+                    int imgW = currentImage.getWidth(this);
+                    int imgH = currentImage.getHeight(this);
 
                     if (imgW > 0 && imgH > 0) {
                         double scale = Math.min((double) pw / imgW, (double) ph / imgH);
@@ -222,7 +252,7 @@ public class MainMenuHowToUse extends JPanel {
                         int drawX = (pw - drawW) / 2;
                         int drawY = (ph - drawH) / 2;
 
-                        g2.drawImage(image, drawX, drawY, drawW, drawH, this);
+                        g2.drawImage(currentImage, drawX, drawY, drawW, drawH, this);
                     }
                 } else {
                     g2.setColor(new Color(28, 28, 28));
@@ -237,7 +267,7 @@ public class MainMenuHowToUse extends JPanel {
                     g2.setFont(branding.jetBrainsBMedium);
                     g2.setColor(new Color(110, 110, 110));
                     FontMetrics fm = g2.getFontMetrics();
-                    String txt = "[branding." + fieldName + "]";
+                    String txt = "[branding." + imageType + "]";
                     g2.drawString(txt, (pw - fm.stringWidth(txt)) / 2, ph / 2 + fm.getAscent() / 2 - 2);
                 }
                 g2.dispose();
